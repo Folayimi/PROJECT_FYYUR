@@ -61,21 +61,24 @@ def index():
 #  Venues
 #  ----------------------------------------------------------------
 
-def generate_upcoming_data(data):      
-  upcoming_show =[]    
+def generate_venue_upcoming_data(data):      
+  count =0    
   present_time = str(datetime.today())    
   show_data = Show.query.filter_by(venue_id=data.id).all()  
   for showD in show_data:            
-    if showD.start_time > present_time:
-      active_Artist = Artist.query.get(showD.artist_id)
-      upcomingData = {
-        "artist_id":active_Artist.id,
-        "artist_name":active_Artist.name,
-        "artist_image_link":active_Artist.image_link,
-        "start_time":showD.start_time
-      }
-      upcoming_show.append(upcomingData)  
-  value = len(upcoming_show)
+    if showD.start_time > present_time: 
+      count+=1           
+  value = count
+  return value
+
+def generate_artist_upcoming_data(data):      
+  count =0    
+  present_time = str(datetime.today())    
+  show_data = Show.query.filter_by(artist_id=data.id).all()  
+  for showD in show_data:            
+    if showD.start_time > present_time: 
+      count+=1           
+  value = count
   return value
 
 
@@ -98,7 +101,7 @@ def venues():
     else:
       record.append(recordData)  
       
-    value = generate_upcoming_data(data1)    
+    value = generate_venue_upcoming_data(data1)    
     for f in firstCity: 
       city = {
         'id':f.id,
@@ -119,14 +122,28 @@ def search_venues():
   # TODO: implement search on venues with partial string search. Ensure it is case-insensitive.
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
+  term_searched = request.form['search_term']
+  term = term_searched.lower()    
+  venue_data = Venue.query.all()
+  data_result = []
+  found=False
+  for venue in venue_data:
+    name = venue.name.lower()    
+    if term in name:    
+      found = True  
+      value = generate_venue_upcoming_data(venue)      
+      result ={
+        "id": venue.id,
+        "name": venue.name,
+        "num_upcoming_shows": value
+      }
+      data_result.append(result)     
+  if found == False:
+    flash("No Venue Available with the name "+ term_searched)   
   response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }
+    "count": len(data_result),
+    "data": data_result
+  }  
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 @app.route('/venues/<int:venue_id>')
@@ -283,13 +300,27 @@ def search_artists():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
   # search for "band" should return "The Wild Sax Band".
+  term_searched = request.form['search_term']
+  term = term_searched.lower()    
+  artist_data = Artist.query.all()
+  data_result = []
+  found=False
+  for artist in artist_data:
+    name = artist.name.lower()    
+    if term in name:    
+      found = True  
+      value = generate_artist_upcoming_data(artist)      
+      result ={
+        "id": artist.id,
+        "name": artist.name,
+        "num_upcoming_shows": value
+      }
+      data_result.append(result)     
+  if found == False:
+    flash("No Artist Available with the name "+ term_searched)   
   response={
-    "count": 3,
-    "data": [{
-      "id": 4,
-      "name": "Guns N Petals",
-      "num_upcoming_shows": 0,
-    }]
+    "count": len(data_result),
+    "data": data_result
   }
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
