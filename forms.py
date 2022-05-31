@@ -134,7 +134,7 @@ class ArtistForm(Form):
     )
     city = StringField(
         'city', validators=[DataRequired()]
-    )
+    )    
     state = SelectField(
         'state', validators=[DataRequired()],
         choices=[
