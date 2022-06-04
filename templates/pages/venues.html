@@ -16,27 +16,4 @@
 		{% endfor %}
 	</ul>
 {% endfor %}
-<script>
-	const buttons = document.querySelectorAll('.deleteButton')
-	for (var i=0; i<buttons.length; i++){
-		const button = buttons[i]
-		button.onclick = function(e){
-			const deleteId = e.target.dataset['id']
-			console.log(deleteId)
-			fetch('/venues/'+deleteId, {
-				method: 'DELETE',
-				body:JSON.stringify({
-					"venueId" : deleteId
-				}),
-				headers : {
-					'Content-Type':'application/json'
-				}			
-			})
-			.then(function(){
-				const item = e.target.parentElement
-				item.remove();
-			})
-		}
-	}
-</script>
 {% endblock %}

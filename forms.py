@@ -73,7 +73,7 @@ def is_website_validated(website_url):
     link has a fixed format!
     """
     
-    pattern = '^(https|http|ftp)\:([\/]{2})([w]{3})\.([a-zA-Z0-9]|.)+$'
+    pattern = '^(https|http|ftp)\:([\/]{2})([a-zA-Z0-9]|.)+$'
     website_format = re.compile(pattern)
     if website_format.match(website_url):
         return True
